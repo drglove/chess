@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pieces">
+      <UniqueIdentifier>{4751ad78-9800-4966-a2f0-e56cec54ae55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{d5c1e333-314c-487a-894e-f3c005503ecf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{dafdae99-ca32-427f-ad33-b5fa8274cb60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{b888faec-0f32-4042-a3f6-e8908858fbfb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bishop.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="rook.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="king.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="knight.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="pawn.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="queen.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="piece.h">
+      <Filter>pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="spriteSheet.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="board.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="move.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bishop.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="rook.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="king.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="knight.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="pawn.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="piece.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="queen.cpp">
+      <Filter>pieces</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="spriteSheet.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="board.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="gui.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
