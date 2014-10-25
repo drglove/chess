@@ -1,7 +1,8 @@
 #pragma once
 #include <SFGUI/Container.hpp>
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
 #include <list>
+#include <cstdint>
 
 namespace sfg {
 
@@ -10,12 +11,12 @@ namespace sfg {
  */
 class SFGUI_API Box : public Container {
 	public:
-		typedef SharedPtr<Box> Ptr; //!< Shared pointer.
-		typedef SharedPtr<const Box> PtrConst; //!< Shared pointer.
+		typedef std::shared_ptr<Box> Ptr; //!< Shared pointer.
+		typedef std::shared_ptr<const Box> PtrConst; //!< Shared pointer.
 
 		/** Box orientation.
 		 */
-		enum Orientation {
+		enum class Orientation : std::uint8_t {
 			HORIZONTAL = 0, //!< Arrange horizontally.
 			VERTICAL //!< Arrange vertically.
 		};
@@ -25,16 +26,37 @@ class SFGUI_API Box : public Container {
 		 * @param spacing Spacing = space between widgets.
 		 * @return Box.
 		 */
-		static Ptr Create( Orientation orientation = HORIZONTAL, float spacing = 0.f );
+		static Ptr Create( Orientation orientation = Orientation::HORIZONTAL, float spacing = 0.f );
 
-		virtual const std::string& GetName() const;
+		virtual const std::string& GetName() const override;
 
-		/** Add a widget to the box.
+		/** Add a widget to the end of the box.
+		 * Alias to PackEnd(...) for backward compatibility.
 		 * @param widget Widget.
 		 * @param expand Expand widget to highest possible size.
 		 * @param fill Fill calculated size.
 		 */
-		void Pack( const Widget::Ptr& widget, bool expand = true, bool fill = true );
+		void Pack( Widget::Ptr widget, bool expand = true, bool fill = true );
+
+		/** Add a widget to the start of the box.
+		 * @param widget Widget.
+		 * @param expand Expand widget to highest possible size.
+		 * @param fill Fill calculated size.
+		 */
+		void PackStart( Widget::Ptr widget, bool expand = true, bool fill = true );
+
+		/** Add a widget to the end of the box.
+		 * @param widget Widget.
+		 * @param expand Expand widget to highest possible size.
+		 * @param fill Fill calculated size.
+		 */
+		void PackEnd( Widget::Ptr widget, bool expand = true, bool fill = true );
+
+		/** Reorder a child to a new location within the box.
+		 * @param widget Child to reorder.
+		 * @param position Position to reorder to. 0 for the start, size - 1 or greater for the end.
+		 */
+		void ReorderChild( Widget::Ptr widget, std::size_t position );
 
 		/** Set spacing.
 		 * @param spacing Spacing.
@@ -50,7 +72,7 @@ class SFGUI_API Box : public Container {
 		/** Get requisition.
 		 * @return Requisition.
 		 */
-		sf::Vector2f CalculateRequisition();
+		sf::Vector2f CalculateRequisition() override;
 
 	private:
 		struct ChildInfo {
@@ -58,25 +80,25 @@ class SFGUI_API Box : public Container {
 			bool expand;
 			bool fill;
 
-			ChildInfo( const Widget::Ptr& widget_, bool expand_ = true, bool fill_ = true );
+			ChildInfo( Widget::Ptr widget_, bool expand_ = true, bool fill_ = true );
 			bool operator==( const ChildInfo& rhs ) const;
 		};
 
 		typedef std::list<ChildInfo> ChildrenCont;
 
-		Box( Orientation orientation = HORIZONTAL, float spacing = 0.f );
+		Box( Orientation orientation = Orientation::HORIZONTAL, float spacing = 0.f );
 
-		void HandleAdd( const Widget::Ptr& child );
-		void HandleRemove( const Widget::Ptr& child );
+		void HandleAdd( Widget::Ptr child );
+		void HandleRemove( Widget::Ptr child );
 		void HandleSizeChange();
 		void HandleRequisitionChange();
 
 		void AllocateChildren() const;
-		bool IsChildInteresting( const sfg::Widget::PtrConst& child ) const;
+		bool IsChildInteresting( sfg::Widget::PtrConst child ) const;
 
-		ChildrenCont m_children;
+		ChildrenCont m_box_children;
 		float m_spacing;
-		unsigned char m_orientation;
+		Orientation m_orientation;
 };
 
 }

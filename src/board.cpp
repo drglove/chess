@@ -69,31 +69,31 @@ void Board::setupPieces()
 	int offset = 12;
 
 	// Allocate white's pieces
-	chess_board[0][0] = new Rook  ('W', 0, 0, m_pieceSprites.at(3), m_pieceSprites.at(3+offset) );
-	chess_board[0][1] = new Knight('W', 0, 1, m_pieceSprites.at(2), m_pieceSprites.at(2+offset) );
-	chess_board[0][2] = new Bishop('W', 0, 2, m_pieceSprites.at(1), m_pieceSprites.at(1+offset) );
-	chess_board[0][3] = new Queen ('W', 0, 3, m_pieceSprites.at(4), m_pieceSprites.at(4+offset) );
-	chess_board[0][4] = new King  ('W', 0, 4, m_pieceSprites.at(5), m_pieceSprites.at(5+offset) );
-	chess_board[0][5] = new Bishop('W', 0, 5, m_pieceSprites.at(1), m_pieceSprites.at(1+offset) );
-	chess_board[0][6] = new Knight('W', 0, 6, m_pieceSprites.at(2), m_pieceSprites.at(2+offset) );
-	chess_board[0][7] = new Rook  ('W', 0, 7, m_pieceSprites.at(3), m_pieceSprites.at(3+offset) );
+	chess_board[0][0] = new Rook  ('W', 0, 0, m_pieceSprites.at(3), m_pieceSprites.at(3+offset), m_pieceSprites.at(3+2*offset), m_pieceSprites.at(3+3*offset) );
+	chess_board[0][1] = new Knight('W', 0, 1, m_pieceSprites.at(2), m_pieceSprites.at(2+offset), m_pieceSprites.at(2+2*offset), m_pieceSprites.at(2+3*offset) );
+	chess_board[0][2] = new Bishop('W', 0, 2, m_pieceSprites.at(1), m_pieceSprites.at(1+offset), m_pieceSprites.at(1+2*offset), m_pieceSprites.at(1+3*offset) );
+	chess_board[0][3] = new Queen ('W', 0, 3, m_pieceSprites.at(4), m_pieceSprites.at(4+offset), m_pieceSprites.at(4+2*offset), m_pieceSprites.at(4+3*offset) );
+	chess_board[0][4] = new King  ('W', 0, 4, m_pieceSprites.at(5), m_pieceSprites.at(5+offset), m_pieceSprites.at(5+2*offset), m_pieceSprites.at(5+3*offset) );
+	chess_board[0][5] = new Bishop('W', 0, 5, m_pieceSprites.at(1), m_pieceSprites.at(1+offset), m_pieceSprites.at(1+2*offset), m_pieceSprites.at(1+3*offset) );
+	chess_board[0][6] = new Knight('W', 0, 6, m_pieceSprites.at(2), m_pieceSprites.at(2+offset), m_pieceSprites.at(2+2*offset), m_pieceSprites.at(2+3*offset) );
+	chess_board[0][7] = new Rook  ('W', 0, 7, m_pieceSprites.at(3), m_pieceSprites.at(3+offset), m_pieceSprites.at(3+2*offset), m_pieceSprites.at(3+3*offset) );
 	for ( unsigned int iCol = 0; iCol < 8; ++iCol )
 	{
-		chess_board[1][iCol] = new Pawn('W', 1, iCol, m_pieceSprites.at(0), m_pieceSprites.at(0+offset) );
+		chess_board[1][iCol] = new Pawn('W', 1, iCol, m_pieceSprites.at(0), m_pieceSprites.at(0+offset), m_pieceSprites.at(0+2*offset), m_pieceSprites.at(0+3*offset) );
 	}
 
 	// Allocate black's pieces
-	chess_board[7][0] = new Rook  ('B', 7, 0, m_pieceSprites.at(9),  m_pieceSprites.at(9+offset) );
-	chess_board[7][1] = new Knight('B', 7, 1, m_pieceSprites.at(8),  m_pieceSprites.at(8+offset) );
-	chess_board[7][2] = new Bishop('B', 7, 2, m_pieceSprites.at(7),  m_pieceSprites.at(7+offset) );
-	chess_board[7][3] = new Queen ('B', 7, 3, m_pieceSprites.at(10), m_pieceSprites.at(10+offset));
-	chess_board[7][4] = new King  ('B', 7, 4, m_pieceSprites.at(11), m_pieceSprites.at(11+offset));
-	chess_board[7][5] = new Bishop('B', 7, 5, m_pieceSprites.at(7),  m_pieceSprites.at(7+offset) );
-	chess_board[7][6] = new Knight('B', 7, 6, m_pieceSprites.at(8),  m_pieceSprites.at(8+offset) );
-	chess_board[7][7] = new Rook  ('B', 7, 7, m_pieceSprites.at(9),  m_pieceSprites.at(9+offset) );
+	chess_board[7][0] = new Rook  ('B', 7, 0, m_pieceSprites.at(9),  m_pieceSprites.at(9+offset),  m_pieceSprites.at(9+2*offset),  m_pieceSprites.at(9+3*offset) );
+	chess_board[7][1] = new Knight('B', 7, 1, m_pieceSprites.at(8),  m_pieceSprites.at(8+offset),  m_pieceSprites.at(8+2*offset),  m_pieceSprites.at(8+3*offset) );
+	chess_board[7][2] = new Bishop('B', 7, 2, m_pieceSprites.at(7),  m_pieceSprites.at(7+offset),  m_pieceSprites.at(7+2*offset),  m_pieceSprites.at(7+3*offset) );
+	chess_board[7][3] = new Queen ('B', 7, 3, m_pieceSprites.at(10), m_pieceSprites.at(10+offset), m_pieceSprites.at(10+2*offset), m_pieceSprites.at(10+3*offset));
+	chess_board[7][4] = new King  ('B', 7, 4, m_pieceSprites.at(11), m_pieceSprites.at(11+offset), m_pieceSprites.at(11+2*offset), m_pieceSprites.at(11+3*offset));
+	chess_board[7][5] = new Bishop('B', 7, 5, m_pieceSprites.at(7),  m_pieceSprites.at(7+offset),  m_pieceSprites.at(7+2*offset),  m_pieceSprites.at(7+3*offset) );
+	chess_board[7][6] = new Knight('B', 7, 6, m_pieceSprites.at(8),  m_pieceSprites.at(8+offset),  m_pieceSprites.at(8+2*offset),  m_pieceSprites.at(8+3*offset) );
+	chess_board[7][7] = new Rook  ('B', 7, 7, m_pieceSprites.at(9),  m_pieceSprites.at(9+offset),  m_pieceSprites.at(9+2*offset),  m_pieceSprites.at(9+3*offset) );
 	for ( unsigned int iCol = 0; iCol < 8; ++iCol )
 	{
-		chess_board[6][iCol] = new Pawn('B', 6, iCol, m_pieceSprites.at(6), m_pieceSprites.at(6+offset) );
+		chess_board[6][iCol] = new Pawn('B', 6, iCol, m_pieceSprites.at(6), m_pieceSprites.at(6+offset), m_pieceSprites.at(6+2*offset), m_pieceSprites.at(6+3*offset) );
 	}
 }
 
@@ -277,19 +277,31 @@ void Board::draw( sf::RenderWindow& window )
 					// Highlight possible squares to move to if piece selected
 					std::list<Move*> currMoves = currPiece->getValidMoves( this );
 					int greenIndex = 63;
+					int yellowIndex = greenIndex + 1;
 					int redIndex = greenIndex + 2;
 
 					for ( std::list<Move*>::iterator currMove = currMoves.begin(); currMove != currMoves.end(); ++currMove )
 					{
 						int index;
-						if ( this->getPiece( (*currMove)->to_row, (*currMove)->to_col ) == nullptr )
+
+						// Decide the color of the squares
+						if ( currPiece->isYellow() )
+						{
+							index = yellowIndex;
+						}
+						else if ( currPiece->isGreen() )
 						{
 							index = greenIndex;
 						}
-						else
+
+						Piece* destPiece = getPiece( (*currMove)->to_row, (*currMove)->to_col);
+						if (destPiece != nullptr)
 						{
+							// Set possible captures with red
 							index = redIndex;
 						}
+
+						// Draw the square's sprite
 						m_pieceSprites.at( index ).setPosition( (float)(*currMove)->to_col*50, (float)(7-(*currMove)->to_row)*50 );
 						window.draw( m_pieceSprites.at( index ) );
 

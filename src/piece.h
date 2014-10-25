@@ -20,11 +20,14 @@ Chess
 // Forward declarations
 class Board;
 
+enum SelectColor { DESELECTED, GREEN, RED, YELLOW };
+
 class Piece
 {
 public:
-	Piece( char color, unsigned int row, unsigned int col, sf::Sprite& sprite_deselected, sf::Sprite& sprite_selected ) :
-	  color( color ), row( row ), col( col ), moved( false ), selected( false ), sprite_deselected( sprite_deselected ), sprite_selected( sprite_selected ) {}
+	Piece( char color, unsigned int row, unsigned int col, sf::Sprite& sprite_deselected, sf::Sprite& sprite_selected_green, sf::Sprite& sprite_selected_yellow, sf::Sprite& sprite_selected_red ) :
+	  color( color ), row( row ), col( col ), moved( false ), sprite_color( DESELECTED ),
+	  sprite_deselected( sprite_deselected ), sprite_selected_green( sprite_selected_green ), sprite_selected_red( sprite_selected_red ), sprite_selected_yellow( sprite_selected_yellow )  {}
 	~Piece() {}
 
 	virtual char getPiece() const = 0;
@@ -37,17 +40,45 @@ public:
 
 	void draw( sf::RenderWindow& window );
 
-	void select()
-	{
-		selected = true;
-	}
-	void deselect()
-	{
-		selected = false;
-	}
 	bool isSelected()
 	{
-		return selected;
+		return sprite_color != DESELECTED;
+	}
+
+	void setDeselected()
+	{
+		sprite_color = DESELECTED;
+	}
+	bool isDeselected()
+	{
+		return sprite_color == DESELECTED;
+	}
+
+	void setGreen()
+	{
+		sprite_color = GREEN;
+	}
+	bool isGreen()
+	{
+		return sprite_color == GREEN;
+	}
+
+	void setRed()
+	{
+		sprite_color = RED;
+	}
+	bool isRed()
+	{
+		return sprite_color == RED;
+	}
+
+	void setYellow()
+	{
+		sprite_color = YELLOW;
+	}
+	bool isYellow()
+	{
+		return sprite_color == YELLOW;
 	}
 
 	bool moved;
@@ -55,10 +86,12 @@ public:
 	unsigned int col;
 
 private:
-	bool selected;
+	SelectColor sprite_color;
 	char color;
 	sf::Sprite& sprite_deselected;
-	sf::Sprite& sprite_selected;
+	sf::Sprite& sprite_selected_green;
+	sf::Sprite& sprite_selected_red;
+	sf::Sprite& sprite_selected_yellow;
 };
 
 

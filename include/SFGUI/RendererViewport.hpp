@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFGUI/Config.hpp>
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
@@ -11,7 +11,7 @@ namespace sfg {
  */
 class RendererViewport {
 	public:
-		typedef SharedPtr<RendererViewport> Ptr; //!< Shared pointer.
+		typedef std::shared_ptr<RendererViewport> Ptr; //!< Shared pointer.
 
 		/** Ctor.
 		 */
@@ -46,6 +46,18 @@ class RendererViewport {
 		 * @return Size of the viewport rectangle.
 		 */
 		const sf::Vector2f& GetSize() const;
+
+		/** Equality operator.
+		 * @param other RendererViewport to compare with.
+		 * @return true if both RendererViewports represent the same viewport area.
+		 */
+		bool operator==( const RendererViewport& other ) const;
+
+		/** Inequality operator.
+		 * @param other RendererViewport to compare with.
+		 * @return false if both RendererViewports represent the same viewport area.
+		 */
+		bool operator!=( const RendererViewport& other ) const;
 
 	private:
 		sf::Vector2f m_source_origin;

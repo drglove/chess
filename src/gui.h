@@ -34,7 +34,7 @@ public:
 	void update( float seconds );
 
 	// Hand off drawing to the window
-	void draw( sf::RenderTarget &target );
+	void draw( sf::RenderWindow &target );
 
 	// Add a move in the log
 	void addMove( const sf::String &text, bool currLine = false );
@@ -43,7 +43,7 @@ public:
 	void reset();
 
 private:
-	// GUI Handeler
+	// GUI Handler
 	sfg::SFGUI m_sfgui;
 
 	// Window

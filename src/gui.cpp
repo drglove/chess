@@ -21,15 +21,15 @@ GUI::GUI( Game* game, sf::Vector2f size, sf::Vector2f pos ) : game ( game )
 	m_window->SetTitle( "Moves" );
 	m_window->SetRequisition( size );
 	m_window->SetPosition( pos );
-	m_window->SetState( sfg::Widget::INSENSITIVE );
+	m_window->SetState( sfg::Widget::State::INSENSITIVE );
 
 	// Make a box for the objects in the window
-	sfg::Box::Ptr windowBox( sfg::Box::Create( sfg::Box::VERTICAL, 5.0f ) );
+	sfg::Box::Ptr windowBox( sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 5.0f ) );
 
 	// Make the scroll window and a box to stay within it
 	sfg::ScrolledWindow::Ptr scrolledWindow = sfg::ScrolledWindow::Create();
 	scrolledWindow->SetRequisition( sf::Vector2f(0.0f, size.y - 100.0f) );
-	m_scrolled_window_box = sfg::Box::Create( sfg::Box::VERTICAL );
+	m_scrolled_window_box = sfg::Box::Create( sfg::Box::Orientation::VERTICAL );
 
 	// Set our scroll properties
 	scrolledWindow->SetScrollbarPolicy( sfg::ScrolledWindow::VERTICAL_ALWAYS | sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC );
@@ -46,10 +46,10 @@ GUI::GUI( Game* game, sf::Vector2f size, sf::Vector2f pos ) : game ( game )
 	// Add buttons
 	sfg::Button::Ptr newGameButton( sfg::Button::Create( "New Game" ) );
 	sfg::Button::Ptr exitGameButton( sfg::Button::Create( "Quit" ) );
-	newGameButton->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Game::newGame, game );
-	exitGameButton->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Game::exitGame, game );
+	newGameButton->GetSignal( sfg::Widget::OnLeftClick ).Connect( std::bind( &Game::newGame, game ) );
+	exitGameButton->GetSignal( sfg::Widget::OnLeftClick ).Connect( std::bind( &Game::exitGame, game ) );
 
-	sfg::Box::Ptr buttonBox( sfg::Box::Create( sfg::Box::HORIZONTAL, 10.0f ) );
+	sfg::Box::Ptr buttonBox( sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 10.0f ) );
 	buttonBox->Pack( newGameButton );
 	buttonBox->Pack( exitGameButton );
 
@@ -71,7 +71,7 @@ void GUI::update( float seconds )
 	m_window->Update( seconds );
 }
 
-void GUI::draw( sf::RenderTarget &target )
+void GUI::draw( sf::RenderWindow &target )
 {
 	m_sfgui.Display( target );
 }
@@ -82,13 +82,15 @@ void GUI::addMove( const sf::String &text, bool currLine )
 	if ( currLine && !m_scrolled_window_box->GetChildren().empty() )
 	{
 		// Set the current line's text
-		sfg::Label::Ptr currLine = sfg::StaticPointerCast<sfg::Label>(m_scrolled_window_box->GetChildren().back());
-		currLine->SetText( text );
+		sfg::Label::Ptr currLineLabel = std::static_pointer_cast<sfg::Label>(m_scrolled_window_box->GetChildren().back());
+		currLineLabel->SetText( text );
 	}
 	else if ( !currLine )
 	{
 		// Make a new line with the text
-		m_scrolled_window_box->Pack( sfg::Label::Create( text ), false );
+		sfg::Label::Ptr newLabel = sfg::Label::Create(text);
+		newLabel->SetAlignment(sf::Vector2f(0.f, 0.f));
+		m_scrolled_window_box->Pack(newLabel, false );
 	}
 }
 

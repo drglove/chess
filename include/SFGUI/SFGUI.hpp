@@ -30,7 +30,8 @@
 #include <SFGUI/Notebook.hpp>
 #include <SFGUI/Spinner.hpp>
 #include <SFGUI/ComboBox.hpp>
-#include <SFGUI/GLCanvas.hpp>
+#include <SFGUI/Canvas.hpp>
+#include <SFGUI/SpinButton.hpp>
 #include <SFGUI/Renderer.hpp>
 
 namespace sfg {
@@ -47,29 +48,29 @@ class SFGUI_API SFGUI {
 		 */
 		~SFGUI();
 
-		/** Draw the GUI.
+		/** Draw the GUI to an sf::Window.
 		 * Just a wrapper for the renderer.
-		 * @param target sf::RenderTarget to draw to.
+		 * @param target sf::Window to draw to.
 		 */
-		void Display( sf::RenderTarget& target );
+		void Display( sf::Window& target );
 
-		/** Enable and select alpha testing threshold.
+		/** Draw the GUI to an sf::RenderWindow.
 		 * Just a wrapper for the renderer.
-		 * @param alpha_threshold Threshold at which fragments will get discarded if their alpha value is less than or equal to. Set to 0.f to disable.
+		 * @param target sf::RenderWindow to draw to.
 		 */
-		void TuneAlphaThreshold( float alpha_threshold );
+		void Display( sf::RenderWindow& target );
 
-		/** Enable or disable CPU driven face culling.
+		/** Draw the GUI to an sf::RenderTexture.
 		 * Just a wrapper for the renderer.
-		 * @param enable true to enable, false to disable.
+		 * @param target sf::RenderTexture to draw to.
 		 */
-		void TuneCull( bool enable );
+		void Display( sf::RenderTexture& target );
 
-		/** Enable or disable FBO GUI caching.
-		 * Just a wrapper for the renderer.
-		 * @param enable true to enable, false to disable.
+		/** Gets a reference to the currently active Renderer.
+		 * Just a wrapper for Renderer::Get().
+		 * @return Reference to the currently active Renderer.
 		 */
-		void TuneUseFBO( bool enable );
+		Renderer& GetRenderer();
 
 		/** Check if an SFGUI object was created.
 		 * @return true if an SFGUI object was created.

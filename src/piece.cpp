@@ -32,16 +32,27 @@ std::list<Move*> Piece::getValidMoves( const Board* board ) const
 
 void Piece::draw( sf::RenderWindow& window )
 {
-	// Draw the deselected sprite by default
-	if ( !selected )
+	switch ( sprite_color )
 	{
+	case GREEN:
+		sprite_selected_green.setPosition((float)col*50, (float)(7-row)*50 );
+		window.draw( sprite_selected_green );
+		break;
+
+	case RED:
+		sprite_selected_red.setPosition((float)col*50, (float)(7-row)*50 );
+		window.draw( sprite_selected_red );
+		break;
+
+	case YELLOW:
+		sprite_selected_yellow.setPosition((float)col*50, (float)(7-row)*50 );
+		window.draw( sprite_selected_yellow );
+		break;
+
+	default:
+	case DESELECTED:
 		sprite_deselected.setPosition( (float)col*50, (float)(7-row)*50 );
 		window.draw( sprite_deselected );
-	}
-	// If selected, draw the other sprite
-	else
-	{
-		sprite_selected.setPosition( (float)col*50, (float)(7-row)*50 );
-		window.draw( sprite_selected );
+		break;
 	}
 }

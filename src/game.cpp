@@ -41,6 +41,8 @@ Game::Game()
 	gui = new GUI( this, sf::Vector2f((WINDOW_WIDTH*3)/11, WINDOW_HEIGHT), sf::Vector2f((WINDOW_WIDTH*8)/11, 0.0f) );
 	chess_board = new Board();
 	log = new Log( chess_board, gui );
+
+	//context.setActive(true);
 	
 	// Initialize the game
 	newGame();
@@ -83,6 +85,7 @@ void Game::newGame()
 	first_move = true;
 	constructing_move = false;
 	move_ready = false;
+	piece_clicked = false;
 
 	chess_board->reset();
 	log->reset();
@@ -165,33 +168,35 @@ void Game::update()
 
 			if ( !constructing_move )
 			{
+				Piece* clickedPiece = chess_board->getPiece(7 - piecePos.y, piecePos.x);
+				if (clickedPiece == nullptr)
+				{
+					// Didn't click anything useful, ignore
+					break;
+				}
+
 				// Start putting together the move
 				curr_move = new Move;
 
-				curr_move->player = curr_player;
+				curr_move->player = clickedPiece->getColor();
 				curr_move->from_col = piecePos.x;
 				curr_move->from_row = 7 - piecePos.y;
 
-				// Highlight the piece
-				Piece* currPiece = chess_board->getPiece( curr_move->from_row, curr_move->from_col );
-				if ( currPiece != nullptr && currPiece->getColor() == curr_player )
-				{
-					currPiece->select();
+				// Set the colour of the piece (green for current player, yellow for enemy)
+				curr_move->player == curr_player ? clickedPiece->setGreen() : clickedPiece->setYellow();
 
-					// Remember that we have the first piece
-					constructing_move = true;
-				}
-				else
-				{
-					// The move is invalid
-					delete curr_move;
-				}
+				// Remember that we have the first half of the move
+				constructing_move = true;
 			}
 			else
 			{
 				// Finish the construction of the move
 				curr_move->to_col = piecePos.x;
 				curr_move->to_row = 7 - piecePos.y;
+
+				// Get the old piece and deselect it no matter what we click next
+				Piece* clickedPiece = chess_board->getPiece(curr_move->from_row, curr_move->from_col);
+				clickedPiece->setDeselected();
 
 				if ( curr_move->to_col == curr_move->from_col &&
 					 curr_move->to_row == curr_move->from_row )
@@ -204,16 +209,10 @@ void Game::update()
 				{
 					// We are finished making a move
 					constructing_move = false;
-					move_ready = true;
-
-					if ( first_move )
-					{
-						first_move = false;
-					}
+					// Discard the move if it's not the current player's turn
+					move_ready = (curr_move->player == curr_player);
+					first_move = !move_ready;
 				}
-
-				// Deselect the piece
-				chess_board->getPiece( curr_move->from_row, curr_move->from_col )->deselect();
 			}
 		}
 	}

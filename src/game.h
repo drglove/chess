@@ -60,6 +60,9 @@ private:
 	// Move tracking
 	Move* curr_move;
 
+	// Was a piece clicked?
+	bool piece_clicked;
+
 	// Is the game over?
 	bool game_over;
 
@@ -76,6 +79,9 @@ private:
 	// Window to render to
 	sf::RenderWindow m_mainWindow;
 	sf::Clock m_clock;
+
+	// Context
+	//sf::Context context;
 
 	// GUI
 	GUI* gui;

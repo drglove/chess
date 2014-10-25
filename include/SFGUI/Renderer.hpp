@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFGUI/Config.hpp>
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
 #include <SFGUI/Primitive.hpp>
 
 #include <SFML/Graphics.hpp>
@@ -9,23 +9,17 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <cstdint>
 
 namespace sfg {
 
 class RendererViewport;
 
-/** SFGUI VBO renderer.
+/** SFGUI Renderer interface.
  */
 class SFGUI_API Renderer {
 	public:
-		enum DepthClearStrategy {
-			NO_DEPTH = 0, //!< No depth testing.
-			CLEAR_DEPTH = 1 << 0, //!< Depth testing using glClear().
-			ALTERNATE_DEPTH = 1 << 1, //!< Depth testing alternating between GL_LESS and GL_GREATER.
-			DEFAULT = NO_DEPTH //!< Default: No depth testing.
-		};
-
-		enum InvalidateDataset {
+		enum InvalidateType : std::uint8_t {
 			INVALIDATE_VERTEX = 1 << 0, //!< Vertex data needs a sync.
 			INVALIDATE_COLOR = 1 << 1, //!< Color data needs a sync.
 			INVALIDATE_TEXTURE = 1 << 2, //!< Texture data needs a sync.
@@ -33,7 +27,11 @@ class SFGUI_API Renderer {
 			INVALIDATE_ALL = INVALIDATE_VERTEX | INVALIDATE_COLOR | INVALIDATE_TEXTURE | INVALIDATE_INDEX //!< All data needs a sync.
 		};
 
+		Renderer( const Renderer& ) = delete;
+		Renderer& operator=( const Renderer& ) = delete;
+
 		/** Create the Renderer singleton instance.
+		 * SFGUI will automatically detect what is the best renderer for your given hardware.
 		 * @return Renderer instance.
 		 */
 		static Renderer& Create();
@@ -42,6 +40,11 @@ class SFGUI_API Renderer {
 		 * @return Renderer instance.
 		 */
 		static Renderer& Get();
+
+		/** Set the Renderer singleton instance.
+		 * @param renderer Renderer instance.
+		 */
+		static void Set( std::shared_ptr<Renderer> renderer );
 
 		/** Destroy the Renderer singleton instance.
 		 */
@@ -54,21 +57,20 @@ class SFGUI_API Renderer {
 
 		/** Dtor.
 		 */
-		~Renderer();
+		virtual ~Renderer() = default;
 
 		/** Get default viewport that covers the entire window.
 		 * @return Default viewport that covers the entire window.
 		 */
-		const SharedPtr<RendererViewport>& GetDefaultViewport();
+		std::shared_ptr<RendererViewport> GetDefaultViewport();
 
 		/** Create and register a new viewport with the renderer.
 		 * @return New viewport.
 		 */
-		SharedPtr<RendererViewport> CreateViewport();
+		std::shared_ptr<RendererViewport> CreateViewport();
 
 		/** Create and register a new text primitive with the renderer.
 		 * @param text sf::Text describing the text to be drawn.
-		 * @param background_color_hint Background color hint for pre-blending.
 		 * @return New text primitive.
 		 */
 		Primitive::Ptr CreateText( const sf::Text& text );
@@ -123,13 +125,17 @@ class SFGUI_API Renderer {
 		 */
 		Primitive::Ptr CreateTriangle( const sf::Vector2f& point0, const sf::Vector2f& point1, const sf::Vector2f& point2, const sf::Color& color = sf::Color::White );
 
-		/** Create and register a new image primitive with the renderer.
-		 * @param rect sf::FloatRect describing the rect in which the image should be drawn.
-		 * @param image sf::Image containing the image to draw.
-		 * @param background_color_hint Background color hint for pre-blending.
-		 * @return New image primitive.
+		/** Create and register a new sprite primitive with the renderer.
+		 * Sprite primitives are primitives that have a bound texture that
+		 * was manually loaded prior to creation of the primitive. Subrects
+		 * can also be specified to use only portions of the passed texture.
+		 * @param rect sf::FloatRect describing the rect in which the sprite should be drawn.
+		 * @param texture Texture loaded previously with LoadImage.
+		 * @param subrect Subrectangle for specifying smaller regions of the texture to use. (0,0,0,0) to use whole texture.
+		 * @param rotation_turns Turns to rotate the texture by in COUNTERCLOCKWISE direction. 1 turn is 90 degrees, -1 turn is -90 degrees etc. 0 to not rotate.
+		 * @return New sprite primitive.
 		 */
-		Primitive::Ptr CreateImage( const sf::FloatRect& rect, const sf::Image& image );
+		Primitive::Ptr CreateSprite( const sf::FloatRect& rect, Primitive::Texture::Ptr texture, const sf::FloatRect& subrect = sf::FloatRect( 0.f, 0.f, 0.f, 0.f ), int rotation_turns = 0 );
 
 		/** Create and register a new line primitive with the renderer.
 		 * @param begin Starting point of the line.
@@ -144,17 +150,17 @@ class SFGUI_API Renderer {
 		 * @param callback Signal containing draw routines to call.
 		 * @return New canvas primitive.
 		 */
-		Primitive::Ptr CreateGLCanvas( SharedPtr<Signal> callback );
+		Primitive::Ptr CreateGLCanvas( std::shared_ptr<Signal> callback );
 
 		/** Register a primitive with the renderer.
 		 * @param primitive Primitive to be registered.
 		 */
-		void AddPrimitive( const Primitive::Ptr& primitive );
+		void AddPrimitive( Primitive::Ptr primitive );
 
 		/** Unregister a primitive from the renderer.
 		 * @param primitive Primitive to be unregistered.
 		 */
-		void RemovePrimitive( const Primitive::Ptr& primitive );
+		void RemovePrimitive( Primitive::Ptr primitive );
 
 		/// @cond
 
@@ -165,11 +171,18 @@ class SFGUI_API Renderer {
 		 */
 		sf::Vector2f LoadFont( const sf::Font& font, unsigned int size );
 
-		/** Load an image into the atlas and return a handle to the image.
-		 * @param image sf::Image containing the image data.
-		 * @return Shared handle to the image.
+		/** Load an sf::Texture into the atlas and return a handle to the allocated texture.
+		 * This merely copies the data from the origin sf::Texture into the atlas.
+		 * @param texture sf::Texture containing the texture data.
+		 * @return Shared handle to the allocated texture.
 		 */
-		SharedPtr<Primitive::Texture> LoadImage( const sf::Image& image );
+		Primitive::Texture::Ptr LoadTexture( const sf::Texture& texture );
+
+		/** Load an sf::Image into the atlas and return a handle to the allocated texture.
+		 * @param image sf::Image containing the image data.
+		 * @return Shared handle to the allocated texture.
+		 */
+		Primitive::Texture::Ptr LoadTexture( const sf::Image& image );
 
 		/** Unload the image at the given offset from the texture atlas.
 		 * @param offset Offset of the image in the texture atlas.
@@ -185,54 +198,48 @@ class SFGUI_API Renderer {
 
 		/// @endcond
 
-		/** Invalidate VBO data so it is resynchronized with fresh data.
+		/** Invalidate renderer datasets so they are resynchronized with fresh data.
 		 * @param datasets The datasets to invalidate. Default: INVALIDATE_ALL
 		 * Bitwise OR of INVALIDATE_VERTEX, INVALIDATE_COLOR, INVALIDATE_TEXTURE or INVALIDATE_INDEX.
 		 */
-		void InvalidateVBO( unsigned char datasets = INVALIDATE_ALL );
+		void Invalidate( unsigned char datasets = INVALIDATE_ALL );
 
-		/** Draw the GUI.
-		 * @param target sf::RenderTarget to draw to.
+		/** Draw the GUI to an sf::Window.
+		 * @param target sf::Window to draw to.
 		 */
-		void Display( sf::RenderTarget& target ) const;
+		void Display( sf::Window& target ) const;
+
+		/** Draw the GUI to an sf::RenderWindow.
+		 * @param target sf::RenderWindow to draw to.
+		 */
+		void Display( sf::RenderWindow& target ) const;
+
+		/** Draw the GUI to an sf::RenderTexture.
+		 * @param target sf::RenderTexture to draw to.
+		 */
+		void Display( sf::RenderTexture& target ) const;
 
 		/** Force the renderer to discard its cache's FBO image and redraw.
 		 */
 		void Redraw();
-
-		/** Enable and select depth testing method.
-		 * WARNING: THIS FEATURE IS BROKEN AND THEREFORE DISABLED UNTIL FURTHER NOTICE.
-		 * Renderer::NO_DEPTH To disable depth testing.
-		 * Renderer::CLEAR_DEPTH To enable depth testing and running glClear() every frame.
-		 * Renderer::ALTERNATE_DEPTH To enable depth testing and alternate between GL_LESS and GL_GREATER instead of clearing the depth buffer every frame. Use this only if you don't use the depth buffer yourself.
-		 * @param strategy Depth buffer strategy to use (default: NO_DEPTH).
-		 */
-		void TuneDepthTest( unsigned char strategy );
-
-		/** Enable and select alpha testing threshold.
-		 * @param alpha_threshold Threshold at which fragments will get discarded if their alpha value is less than or equal to. Set to 0.f to disable.
-		 */
-		void TuneAlphaThreshold( float alpha_threshold );
-
-		/** Enable or disable CPU driven face culling.
-		 * @param enable true to enable, false to disable.
-		 */
-		void TuneCull( bool enable );
-
-		/** Enable or disable FBO GUI caching.
-		 * @param enable true to enable, false to disable.
-		 */
-		void TuneUseFBO( bool enable );
 
 		/** Get the size of the window the last time the GUI was displayed.
 		 * @return Size of the window the last time the GUI was displayed.
 		 */
 		const sf::Vector2u& GetWindowSize() const;
 
-	private:
+		/** Get name of the Renderer.
+		 * The name of a Renderer is a descriptive name of the Renderer itself. E.g.
+		 * "Vertex Buffer Renderer" for the VertexBufferRenderer.
+		 * @return Name of the Renderer.
+		 */
+		virtual const std::string& GetName() const = 0;
+
+	protected:
 		struct Batch {
-			SharedPtr<RendererViewport> viewport;
-			SharedPtr<Signal> custom_draw_callback;
+			std::shared_ptr<RendererViewport> viewport;
+			std::shared_ptr<Signal> custom_draw_callback;
+			std::size_t atlas_page;
 			unsigned int start_index;
 			unsigned int index_count;
 			GLuint min_index;
@@ -245,77 +252,49 @@ class SFGUI_API Renderer {
 			sf::Vector2u size;
 		};
 
+		typedef std::pair<void*, unsigned int> FontID;
+
 		/** Ctor.
 		 */
 		Renderer();
 
-		void SetupGL( sf::RenderTarget& target ) const;
+		virtual void InvalidateImpl( unsigned char datasets );
 
-		void RestoreGL( sf::RenderTarget& target ) const;
+		virtual void InvalidateWindow();
+
+		virtual void DisplayImpl() const = 0;
 
 		void SortPrimitives();
 
-		void RefreshVBO( const sf::RenderTarget& target );
-
-		void SetupFBO( unsigned int width, unsigned int height );
-
-		void DestroyFBO();
-
-		static SharedPtr<Renderer> m_instance;
-
 		std::vector<Primitive::Ptr> m_primitives;
-		std::vector<SharedPtr<RendererViewport> > m_viewports;
+		std::vector<std::unique_ptr<sf::Texture>> m_texture_atlas;
 
-		std::vector<Batch> m_batches;
-
-		SharedPtr<RendererViewport> m_default_viewport;
-
-		sf::Texture m_texture_atlas;
-
-		GLuint m_frame_buffer;
-		GLuint m_frame_buffer_texture;
-		GLuint m_frame_buffer_depth;
-
-		GLuint m_display_list;
-
-		typedef std::pair<void*, unsigned int> FontID;
-
-		std::list<TextureNode> m_textures;
-		std::map<FontID, SharedPtr<Primitive::Texture> > m_fonts;
-		SharedPtr<Primitive::Texture> m_pseudo_texture;
-
-		GLuint m_vertex_vbo;
-		GLuint m_color_vbo;
-		GLuint m_texture_vbo;
-		GLuint m_index_vbo;
-
-		GLsizei m_last_vertex_count;
-		GLsizei m_last_index_count;
+		std::shared_ptr<RendererViewport> m_default_viewport;
 
 		std::size_t m_vertex_count;
 		std::size_t m_index_count;
 
-		float m_alpha_threshold;
+		mutable sf::Vector2u m_window_size;
 
-		mutable sf::Vector2u m_last_window_size;
-
-		unsigned char m_depth_clear_strategy;
-
-		unsigned char m_vbo_sync_type;
-
-		mutable bool m_depth_alternate_flag;
-
-		mutable bool m_vbo_synced;
+		unsigned int m_max_texture_size;
 
 		mutable bool m_force_redraw;
 
-		bool m_cull;
-		bool m_use_fbo;
+	private:
+		void SetupGL() const;
 
-		bool m_pseudo_texture_loaded;
+		void RestoreGL() const;
 
-		bool m_vbo_supported;
-		bool m_fbo_supported;
+		void WipeStateCache( sf::RenderTarget& target ) const;
+
+		std::list<TextureNode> m_textures;
+		std::map<FontID, Primitive::Texture::Ptr> m_fonts;
+
+		static std::shared_ptr<Renderer> m_instance;
+
+		Primitive::Texture::Ptr m_pseudo_texture;
+
+		mutable sf::Vector2u m_last_window_size;
 };
 
 }

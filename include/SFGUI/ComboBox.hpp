@@ -1,7 +1,7 @@
 #pragma once
 #include <SFGUI/Bin.hpp>
 #include <SFGUI/Scrollbar.hpp>
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
 #include <SFML/System/String.hpp>
 #include <vector>
 
@@ -11,8 +11,8 @@ namespace sfg {
  */
 class SFGUI_API ComboBox : public Bin {
 	public:
-		typedef SharedPtr<ComboBox> Ptr; ///< Shared pointer.
-		typedef SharedPtr<const ComboBox> PtrConst; ///< Shared pointer to const.
+		typedef std::shared_ptr<ComboBox> Ptr; ///< Shared pointer.
+		typedef std::shared_ptr<const ComboBox> PtrConst; ///< Shared pointer to const.
 		typedef std::size_t IndexType; ///< Type for item indices.
 
 		static const IndexType NONE; ///< Value for specifying an invalid index/no item selected.
@@ -22,11 +22,7 @@ class SFGUI_API ComboBox : public Bin {
 		 */
 		static Ptr Create();
 
-		/** Dtor.
-		 */
-		virtual ~ComboBox();
-
-		virtual const std::string& GetName() const;
+		virtual const std::string& GetName() const override;
 
 		/** Get selected item.
 		 * @return Active item or NONE if none selected.
@@ -106,20 +102,18 @@ class SFGUI_API ComboBox : public Bin {
 		static Signal::SignalID OnOpen; //!< Fired when the popup is opened.
 
 	protected:
-		/** Ctor.
-		 */
 		ComboBox();
 
-		RenderQueue* InvalidateImpl() const;
-		sf::Vector2f CalculateRequisition();
+		std::unique_ptr<RenderQueue> InvalidateImpl() const;
+		sf::Vector2f CalculateRequisition() override;
 
 	private:
-		void HandleMouseEnter( int x, int y );
-		void HandleMouseLeave( int x, int y );
-		virtual void HandleMouseMoveEvent( int x, int y );
-		virtual void HandleMouseButtonEvent( sf::Mouse::Button button, bool press, int x, int y );
-		virtual void HandleStateChange( State old_state );
-		virtual void HandleUpdate( float seconds );
+		virtual void HandleMouseEnter( int x, int y );
+		virtual void HandleMouseLeave( int x, int y );
+		virtual void HandleMouseMoveEvent( int x, int y ) override;
+		virtual void HandleMouseButtonEvent( sf::Mouse::Button button, bool press, int x, int y ) override;
+		virtual void HandleStateChange( State old_state ) override;
+		virtual void HandleUpdate( float seconds ) override;
 		void ChangeStartEntry();
 
 		Scrollbar::Ptr m_scrollbar;

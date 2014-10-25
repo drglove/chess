@@ -2,13 +2,14 @@
 
 #include <SFGUI/Config.hpp>
 #include <SFGUI/Object.hpp>
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
 #include <SFGUI/RenderQueue.hpp>
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Window/Event.hpp>
 #include <map>
 #include <string>
+#include <cstdint>
 
 namespace sfg {
 
@@ -16,14 +17,15 @@ class Container;
 
 /** Base class for widgets.
  */
-class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
+class SFGUI_API Widget : public Object, public std::enable_shared_from_this<Widget> {
 	public:
-		typedef SharedPtr<Widget> Ptr; //!< Shared pointer.
-		typedef SharedPtr<const Widget> PtrConst; //!< Shared pointer.
+		typedef std::shared_ptr<Widget> Ptr; //!< Shared pointer.
+		typedef std::shared_ptr<const Widget> PtrConst; //!< Shared pointer.
+		typedef std::vector<Widget::Ptr> WidgetsList;
 
 		/** Widget state.
 		 */
-		enum State {
+		enum class State : std::uint8_t {
 			NORMAL = 0, /*!< Normal. */
 			ACTIVE, /*!< Active, e.g. when a button is pressed. */
 			PRELIGHT, /*!< Prelight, e.g. when the mouse moves over a widget. */
@@ -140,17 +142,17 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		 * don't want to call this method directly.
 		 * @param parent Parent.
 		 */
-		void SetParent( const Widget::Ptr& parent );
+		void SetParent( Widget::Ptr parent );
 
 		/** Get parent.
 		 * @return Parent.
 		 */
-		SharedPtr<Container> GetParent();
+		std::shared_ptr<Container> GetParent();
 
 		/** Get parent.
 		 * @return Parent.
 		 */
-		SharedPtr<const Container> GetParent() const;
+		std::shared_ptr<const Container> GetParent() const;
 
 		/** Set widget's state.
 		 * @param state State.
@@ -208,10 +210,26 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		 */
 		std::string GetClass() const;
 
+		/** Get all widgets with the specified ID.
+		 * @param id ID the widget should have.
+		 * @return Widget::Ptr of the first found widget with the specified ID or Widget::Ptr() if none found.
+		 */
+		static Widget::Ptr GetWidgetById( const std::string& id );
+
+		/** Get all widgets with the specified class.
+		 * @param class_name Class the widget should have.
+		 * @return sfg::Widget::WidgetsList of all found widgets with the specified class. Empty if none found.
+		 */
+		static WidgetsList GetWidgetsByClass( const std::string& class_name );
+
 		/** Refresh.
 		 * Invalidate the widget and request resize.
 		 */
 		virtual void Refresh();
+
+		/** Refreshes all root widgets, which should refresh all widgets in the hierarchy.
+		 */
+		static void RefreshAll();
 
 		/** Set hierarchy level of this widget.
 		 * @param level New hierarchy level of this widget.
@@ -226,12 +244,12 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		/** Set viewport of this widget.
 		 * @param viewport Viewport of this widget.
 		 */
-		void SetViewport( const SharedPtr<RendererViewport>& viewport );
+		void SetViewport( RendererViewport::Ptr viewport );
 
 		/** Get viewport of this widget.
 		 * @return Viewport of this widget.
 		 */
-		const SharedPtr<RendererViewport>& GetViewport() const;
+		RendererViewport::Ptr GetViewport() const;
 
 		/** Get the Z layer this widget should be rendered in.
 		 * Larger values are rendered later. Default: 0.
@@ -244,6 +262,11 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		 * @param z_order Z layer this widget should be rendered in.
 		 */
 		void SetZOrder( int z_order );
+
+		/** Check if a widget is currently a modal widget.
+		 * @return true if a widget is currently a modal widget.
+		 */
+		static bool HasModal();
 
 		// Signals.
 		static Signal::SignalID OnStateChange; //!< Fired when state changed.
@@ -264,7 +287,7 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		static Signal::SignalID OnMouseRightRelease; //!< Fired when right button released.
 
 		static Signal::SignalID OnLeftClick; //!< Fired when left button clicked.
-		static Signal::SignalID OnRightClick; //!< Fired when left button clicked.
+		static Signal::SignalID OnRightClick; //!< Fired when right button clicked.
 
 		static Signal::SignalID OnKeyPress; //!< Fired when a key is pressed while State == Active.
 		static Signal::SignalID OnKeyRelease; //!< Fired when a key is released while State == Active.
@@ -278,9 +301,9 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		/** Invalidate implementation (redraw internally).
 		 * Gets called whenever the widget needs to be redrawn, e.g. due to a call
 		 * to Invalidate().
-		 * @return Pointer to RenderQueue -- ownership is taken by caller.
+		 * @return Pointer to std::unique_ptr<RenderQueue> -- ownership is taken by caller.
 		 */
-		virtual RenderQueue* InvalidateImpl() const;
+		virtual std::unique_ptr<RenderQueue> InvalidateImpl() const;
 
 		/** Requisition implementation (recalculate requisition).
 		 * @return New requisition.
@@ -291,6 +314,22 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		 * @return true if mouse is inside.
 		 */
 		bool IsMouseInWidget() const;
+
+		/** Set whether the mouse is in the widget or not.
+		 * @param in_widget true if mouse should be in widget.
+		 */
+		void SetMouseInWidget( bool in_widget );
+
+		/** Check if the given mouse button is down
+		 * @param button Given mouse button. Defaults to check if ANY button is down.
+		 * @return true if the given mouse button is down.
+		 */
+		bool IsMouseButtonDown( sf::Mouse::Button button = sf::Mouse::ButtonCount ) const;
+
+		/** Set whether the given mouse button is down.
+		 * @param button Given mouse button. Defaults to clear button down state for all buttons.
+		 */
+		void SetMouseButtonDown( sf::Mouse::Button button = sf::Mouse::ButtonCount );
 
 		// Internal handling methods.
 
@@ -361,7 +400,7 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		/** Handle focus change.
 		 * @param focused_widget Widget currently being focused.
 		 */
-		virtual void HandleFocusChange( const Widget::Ptr& focused_widget );
+		virtual void HandleFocusChange( Widget::Ptr focused_widget );
 
 		/** Handle local visibility change.
 		 */
@@ -405,11 +444,6 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		 */
 		bool IsModal() const;
 
-		/** Check if a widget is currently a modal widget.
-		 * @return true if a widget is currently a modal widget.
-		 */
-		static bool HasModal();
-
 	private:
 		struct ClassId {
 			std::string id;
@@ -419,42 +453,36 @@ class SFGUI_API Widget : public Object, public EnableSharedFromThis<Widget> {
 		static void SetActiveWidget( Ptr widget );
 		static bool IsActiveWidget( PtrConst widget );
 
+		static const std::vector<Widget*>& GetRootWidgets();
+
 		sf::FloatRect m_allocation;
 		sf::Vector2f m_requisition;
-		sf::Vector2f* m_custom_requisition;
+		std::unique_ptr<sf::Vector2f> m_custom_requisition;
 
-		SharedPtr<RendererViewport> m_viewport;
+		std::shared_ptr<RendererViewport> m_viewport;
 
-		WeakPtr<Container> m_parent;
+		std::weak_ptr<Container> m_parent;
 
-		static WeakPtr<Widget> m_focus_widget;
-		static WeakPtr<Widget> m_active_widget;
-		static WeakPtr<Widget> m_modal_widget;
+		static std::weak_ptr<Widget> m_focus_widget;
+		static std::weak_ptr<Widget> m_active_widget;
+		static std::weak_ptr<Widget> m_modal_widget;
 
-		ClassId* m_class_id;
+		static std::vector<Widget*> m_root_widgets;
+
+		std::unique_ptr<ClassId> m_class_id;
 
 		int m_hierarchy_level;
 		int m_z_order;
 
-		mutable RenderQueue* m_drawable;
-
-		/**
-		 * Bit-field
-		 * 7=6=5 4 3=2=1 0
-		 * ^ ^ ^ ^ ^ ^ ^ ^
-		 * | | | | | | | |
-		 * | | | | | | | visible
-		 * | | | | | | |
-		 * | | | | state
-		 * | | | |
-		 * | | | mouse_in
-		 * | | |
-		 * mouse_button_down
-		 */
-
-		unsigned char m_bitfield;
+		mutable std::unique_ptr<RenderQueue> m_drawable;
 
 		mutable bool m_invalidated;
+		mutable bool m_parent_notified;
+
+		State m_state;
+		unsigned char m_mouse_button_down : 6; // 64 buttons, might not be enough for some people
+		bool m_mouse_in : 1;
+		bool m_visible : 1;
 };
 
 }

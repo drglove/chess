@@ -2,7 +2,7 @@
 
 #include <SFGUI/Config.hpp>
 #include <SFGUI/Widget.hpp>
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
 #include <vector>
 
 namespace sfg {
@@ -12,23 +12,23 @@ namespace sfg {
  */
 class SFGUI_API Container : public Widget {
 	public:
-		typedef SharedPtr<Container> Ptr; //!< Shared pointer.
-		typedef SharedPtr<const Container> PtrConst; //!< Shared pointer.
+		typedef std::shared_ptr<Container> Ptr; //!< Shared pointer.
+		typedef std::shared_ptr<const Container> PtrConst; //!< Shared pointer.
 		typedef std::vector<Widget::Ptr> WidgetsList;
 
 		/** Dtor.
 		 */
-		virtual ~Container();
+		virtual ~Container() = default;
 
 		/** Add child.
 		 * @param widget Widget to add.
 		 */
-		void Add( const Widget::Ptr& widget );
+		void Add( Widget::Ptr widget );
 
 		/** Remove child (from container).
 		 * @param widget Widget to remove.
 		 */
-		void Remove( const Widget::Ptr& widget );
+		void Remove( Widget::Ptr widget );
 
 		/** Remove all children from container.
 		 */
@@ -37,7 +37,7 @@ class SFGUI_API Container : public Widget {
 		/** Check if a widget is a child of this container.
 		 * @param widget Widget to search for.
 		 */
-		bool IsChild( const Widget::Ptr& widget ) const;
+		bool IsChild( Widget::Ptr widget ) const;
 
 		/** Get children.
 		 * @return std::list with children.
@@ -46,47 +46,43 @@ class SFGUI_API Container : public Widget {
 
 		void Refresh();
 
-		virtual void HandleEvent( const sf::Event& event );
+		virtual void HandleEvent( const sf::Event& event ) override;
 
 		/** Used to inform parent that a child has been invalidated
 		 * @param child Widget that was invalidated.
 		 */
-		virtual void HandleChildInvalidate( const Widget::PtrConst& child ) const;
+		virtual void HandleChildInvalidate( Widget::PtrConst child ) const;
 
 		/** Handle changing of absolute position
 		 */
-		virtual void HandleAbsolutePositionChange();
+		virtual void HandleAbsolutePositionChange() override;
 
 	protected:
-		/** Constructor.
-		 */
-		Container();
-
 		/** Handle adding children.
 		 * @param child Child widget.
 		 */
-		virtual void HandleAdd( const Widget::Ptr& child );
+		virtual void HandleAdd( Widget::Ptr child );
 
 		/** Handle removing children.
 		 * @param child Child widget.
 		 */
-		virtual void HandleRemove( const Widget::Ptr& child );
+		virtual void HandleRemove( Widget::Ptr child );
 
 		/** Handle visibility change.
 		 */
-		virtual void HandleGlobalVisibilityChange();
+		virtual void HandleGlobalVisibilityChange() override;
 
 		/** Handle update.
 		 */
-		virtual void HandleUpdate( float seconds );
+		virtual void HandleUpdate( float seconds ) override;
 
 		/** Handle hierarchy level change.
 		 */
-		virtual void HandleSetHierarchyLevel();
+		virtual void HandleSetHierarchyLevel() override;
 
 		/** Handle viewport change.
 		 */
-		virtual void HandleViewportUpdate();
+		virtual void HandleViewportUpdate() override;
 
 	private:
 		WidgetsList m_children;

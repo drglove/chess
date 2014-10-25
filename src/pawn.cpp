@@ -82,6 +82,12 @@ bool Pawn::isValidMove( const Board* board, const Move move ) const
 		return false;
 	}
 
+	const Piece* target = board->getPiece( move.to_row, move.to_col );
+	if ( target != nullptr && target->getColor() == move.player )
+	{
+		return false;
+	}
+
 	// Get the current pawn
 	if ( !this->moved && abs(move.to_row - move.from_row) == 2 )
 	{
